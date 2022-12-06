@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>HTML Chat</title>
+  <style>
+    #chat-area {
+      width: 500px;
+      height: 300px;
+      border: 1px solid black;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>HTML Chat</h1>
+  <div id="chat-area"></div>
+  <form id="message-form">
+    <input type="text" id="message-input" placeholder="Enter your message...">
+    <input type="submit" value="Send">
+  </form>
+
+  <script>
+    // Get references to the form and input elements
+    var form = document.getElementById('message-form');
+    var input = document.getElementById('message-input');
+
+    // When the form is submitted, send the message to the server
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Send the message to the server
+      sendMessage(input.value);
+
+      // Clear the input field
+      input.value = '';
+    });
+
+    // This function sends the message to the server
+    function sendMessage(message) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'chat.php');
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.send('message=' + encodeURIComponent(message));
+    }
+
+    // This function updates the chat area with new messages
+    function updateChat() {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          // Parse the JSON response
+          var response = JSON.parse(xhr.responseText);
+
+          // Update the chat area with the new messages
+          var chatArea = document.getElementById('chat-area');
+          chatArea.innerHTML = '';
+          for (var i = 0; i < response.length; i++) {
+            chatArea.innerHTML += response[i] + '<br>';
+          }
+
+          // Scroll the chat area to the bottom
+          chatArea.scrollTop = chatArea.scrollHeight;
+        }
+      };
+      xhr.open('GET', 'chat.php');
+      xhr.send();
+    }
+
+    // Update the chat every 1 second
+    setInterval(updateChat, 1000);
+  </script>
+</body>
+</html>
